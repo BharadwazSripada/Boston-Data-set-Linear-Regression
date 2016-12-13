@@ -1,0 +1,43 @@
+bost4 <- read.csv("C:\\Users\\Hi\\Desktop\\Titanic\\Boston\\train.csv",header = T,stringsAsFactors = T)
+boston4 <- bost4
+boston4$chas <- as.factor(boston4$chas)
+boston4$nox <- as.factor(boston4$nox)
+boston4$rm <- bost4$rm
+
+#Histogram for cont var
+bost1 <- bost4[,-c(1,5)]
+pdf("C:\\Users\\Hi\\Desktop\\Titanic\\Boston\\histogram.pdf")
+for (i in 1:length(bost1)){
+  hist(bost1[,i], main = paste("Histogram of",names(bost1[i])),col = "blue")
+}
+dev.off()
+
+#Boxplot for cont var
+
+pdf("C:\\Users\\Hi\\Desktop\\Titanic\\Boston\\Boxplot.pdf")
+for (i in 1:length(bost1)){
+  boxplot(bost1[,i], main = paste("boxplot of",names(bost1[i])),col = "blue")
+}
+dev.off()
+
+set.seed(20)
+trainindex <- createDataPartition(boston4$medv,p=0.7,list = F,times=1)
+trainset <- boston4[trainindex,]
+testset <- boston4[-trainindex,]
+
+
+fit <- lm(log(medv) ~.-indus-age- ID -1,data = boston4)
+summary(fit)
+
+dwtest(fit)
+vif(fit)
+
+pred1 <- predict(fit,testset[,-15])
+
+rmse(exp(pred1),testset$medv)
+
+
+fit.stand <- rstandard(fit)
+qqnorm(fit.stand,ylab="Standardized Residuals", xlab="Normal Scores")
+qqline(fit.stand)
+
